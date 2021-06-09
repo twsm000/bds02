@@ -10,17 +10,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.Commit;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional
+//Link of discussion: https://github.com/spring-projects/spring-boot/issues/5993
+@Transactional(propagation = Propagation.NOT_SUPPORTED)
 public class CityControllerIT {
 
 	@Autowired
 	private MockMvc mockMvc;
+
+	@Test
+	public void deleteShouldReturnBadRequestWhenDependentId() throws Exception {
+
+		Long dependentId = 1L;
+
+		ResultActions result =
+				mockMvc.perform(delete("/cities/{id}", dependentId));
+
+		result.andExpect(status().isBadRequest());
+	}
 	
 	@Test
 	public void deleteShouldReturnNoContentWhenIndependentId() throws Exception {		
