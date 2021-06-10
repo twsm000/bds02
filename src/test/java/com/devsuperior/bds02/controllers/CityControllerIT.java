@@ -17,14 +17,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-//Link of discussion: https://github.com/spring-projects/spring-boot/issues/5993
-@Transactional(propagation = Propagation.NOT_SUPPORTED)
+@Transactional
 public class CityControllerIT {
 
 	@Autowired
 	private MockMvc mockMvc;
 
 	@Test
+	@Transactional(propagation = Propagation.NOT_SUPPORTED)
+	//Link of discussion: https://github.com/spring-projects/spring-boot/issues/5993
 	public void deleteShouldReturnBadRequestWhenDependentId() throws Exception {
 
 		Long dependentId = 1L;
@@ -44,6 +45,23 @@ public class CityControllerIT {
 				mockMvc.perform(delete("/cities/{id}", independentId));
 		
 		
+		result.andExpect(status().isNoContent());
+	}
+
+	/**
+	 * This test is here only to validate the @Transactional level
+	 * witch should delete correctly the independentId
+	 * @throws Exception
+	 */
+	@Test
+	public void deleteShouldReturnNoContentWhenIndependentId2() throws Exception {
+
+		Long independentId = 5L;
+
+		ResultActions result =
+				mockMvc.perform(delete("/cities/{id}", independentId));
+
+
 		result.andExpect(status().isNoContent());
 	}
 
